@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Basic meta tags for browser -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Camera Web App</title>
+    
+    <!-- Simple CSS styling inside the HTML file -->
+    <style>
+        /* Define basic colors */
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 10px;
+        }
+
+        /* Main container for the whole page */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px gray;
+        }
+
+        /* Header styling */
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        /* Tabs styling */
+        .tabs {
+            display: flex;
+            margin: 20px 0;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab-button {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #ddd;
+            border: none;
+            font-size: 16px;
+            margin-right: 5px;
+            border-radius: 5px 5px 0 0;
+        }
+
+        /* Active tab button styling */
+        .tab-button.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        /* Tab content styling */
+        .tab-content {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        /* Show only active tab */
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Stats section */
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 15px;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* Button styling */
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* Gallery grid */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .gallery-item {
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 3px;
+        }
+
+        .gallery-item p {
+            margin: 10px 0 0 0;
+            color: #666;
+            font-size: 12px;
+        }
+
+        /* Message boxes */
+        .message {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Loading spinner */
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        /* Responsive design for small screens */
+        @media (max-width: 600px) {
+            .gallery {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .stats {
+                flex-direction: column;
+            }
+
+            .tab-button {
+                flex: 1;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Main container -->
+    <div class="container">
+        <!-- Header section -->
+        <header>
+            <h1>📷 My Camera App</h1>
+            <p>USB Camera Streaming on Raspberry Pi</p>
+        </header>
+
+        <!-- Statistics section -->
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-number" id="totalImages">0</div>
+                <div class="stat-label">Total Images</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="storageSize">0</div>
+                <div class="stat-label">Storage (MB)</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="hostname">-</div>
+                <div class="stat-label">Device</div>
+            </div>
+        </div>
+
+        <!-- Tabs - buttons to switch between different views -->
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('live')">
+                🔴 Live Stream
+            </button>
+            <button class="tab-button" onclick="showTab('gallery')">
+                🖼️ Gallery
+            </button>
+        </div>
+
+        <!-- TAB 1: Live Stream -->
+        <div id="live" class="tab-content active">
+            <h2>Live Camera Feed</h2>
+            <p>Real-time camera stream:</p>
+            <img src="/video_feed" alt="Live Camera" style="width: 100%; max-width: 800px; border: 2px solid #ddd; border-radius: 5px;">
+            <p style="color: #666; font-size: 12px;">Updates every 2 seconds</p>
+        </div>
+
+        <!-- TAB 2: Gallery -->
+        <div id="gallery" class="tab-content">
+            <h2>Image Gallery</h2>
+            <p>All captured images:</p>
+            
+            <!-- Loading message while fetching images -->
+            <div class="loading" id="galleryLoading">
+                Loading images...
+            </div>
+            
+            <!-- Gallery grid where images will appear -->
+            <div class="gallery" id="galleryGrid">
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript - This makes the page interactive -->
+    <script>
+        // ===== TAB SWITCHING FUNCTION =====
+        // This function shows one tab and hides others
+        function showTab(tabName) {
+            // Find all tab contents
+            var tabs = document.getElementsByClassName('tab-content');
+            
+            // Hide all tabs
+            for (var i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('active');
+            }
+            
+            // Find all tab buttons
+            var buttons = document.getElementsByClassName('tab-button');
+            
+            // Remove active class from all buttons
+            for (var i = 0; i < buttons.length; i++) {
+                buttons[i].classList.remove('active');
+            }
+            
+            // Show the selected tab
+            document.getElementById(tabName).classList.add('active');
+            
+            // Highlight the clicked button
+            event.target.classList.add('active');
+            
+            // If gallery tab clicked, load images
+            if (tabName === 'gallery') {
+                loadGallery();
+            }
+        }
+
+        // ===== LOAD STATISTICS FUNCTION =====
+        // This function gets stats from server and displays them
+        function loadStats() {
+            // Send request to server
+            fetch('/api/stats')
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(data) {
+                    // Update the displayed numbers
+                    document.getElementById('totalImages').textContent = data.total_images;
+                    document.getElementById('storageSize').textContent = data.total_size_mb;
+                    document.getElementById('hostname').textContent = data.hostname;
+                })
+                .catch(function(error) {
+                    console.log('Error loading stats:', error);
+                });
+        }
+
+        // ===== LOAD GALLERY FUNCTION =====
+        // This function gets list of images and displays them
+        function loadGallery() {
+            // Show loading message
+            document.getElementById('galleryLoading').style.display = 'block';
+            document.getElementById('galleryGrid').innerHTML = '';
+            
+            // Send request to server for image list
+            fetch('/api/images')
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(data) {
+                    // Hide loading message
+                    document.getElementById('galleryLoading').style.display = 'none';
+                    
+                    // Check if we got any images
+                    if (data.images.length === 0) {
+                        document.getElementById('galleryGrid').innerHTML = '<p>No images yet</p>';
+                        return;
+                    }
+                    
+                    // Create HTML for each image
+                    var galleryHTML = '';
+                    for (var i = 0; i < data.images.length; i++) {
+                        var img = data.images[i];
+                        galleryHTML += '<div class="gallery-item">';
+                        galleryHTML += '<img src="/api/image/' + img.name + '" alt="' + img.name + '">';
+                        galleryHTML += '<p>' + img.name + '</p>';
+                        galleryHTML += '<p>' + img.size.toFixed(0) + ' KB</p>';
+                        galleryHTML += '</div>';
+                    }
+                    
+                    // Display all images
+                    document.getElementById('galleryGrid').innerHTML = galleryHTML;
+                })
+                .catch(function(error) {
+                    document.getElementById('galleryLoading').innerHTML = 'Error loading images';
+                    console.log('Error:', error);
+                });
+        }
+
+
+        // ===== AUTO-UPDATE STATISTICS =====
+        // Load stats when page opens
+        loadStats();
+        
+        // Update stats every 5 seconds
+        setInterval(loadStats, 5000);
+    </script>
+</body>
+</html>
+
